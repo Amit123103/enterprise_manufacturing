@@ -1,0 +1,37 @@
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Python cache & compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Local SQLite databases
+db.sqlite3
+db.sqlite3-journal
+
+# Local Environment variables
+.env
+.env.local
+
+# Git & IDE configuration
+.git/
+.gitignore
+.vscode/
+.idea/
+.kilo/
+
+# Tests & temporary files
+tests/
+scratch/
+pytest.ini
+
+# Large documentation assets
+*.pdf
+generate_documentation_pdf.py
+
+# Local media uploads
+media/
