@@ -102,6 +102,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
+# Serverless detection (Vercel, AWS Lambda)
+IS_SERVERLESS = bool(os.getenv('VERCEL') or os.getenv('VERCEL_ENV') or os.getenv('AWS_LAMBDA_FUNCTION_NAME') or os.path.exists('/var/task'))
+
 # Database
 DATABASE_URL = os.getenv('DATABASE_URL')
 USE_POSTGRES = os.getenv('USE_POSTGRES', 'False').lower() in ('true', '1', 'yes')
@@ -127,14 +130,25 @@ elif USE_POSTGRES:
         }
     }
 else:
-    # On Vercel without a configured database, fallback to /tmp to prevent read-only filesystem crash
-    sqlite_db_path = Path('/tmp/db.sqlite3') if os.getenv('VERCEL') else BASE_DIR / 'db.sqlite3'
+    # Use SQLite: In serverless (read-only container), copy pre-seeded db.sqlite3 to writable /tmp/db.sqlite3
+    sqlite_db_path = BASE_DIR / 'db.sqlite3'
+    if IS_SERVERLESS:
+        import shutil
+        tmp_db = Path('/tmp/db.sqlite3')
+        if not tmp_db.exists() and sqlite_db_path.exists():
+            try:
+                shutil.copyfile(sqlite_db_path, tmp_db)
+            except Exception as e:
+                print(f"[SETTINGS] Failed to copy db.sqlite3 to /tmp: {e}")
+        sqlite_db_path = tmp_db
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': sqlite_db_path,
         }
     }
+
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
@@ -172,7 +186,21 @@ STORAGES = {
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = Path('/tmp/media') if os.getenv('VERCEL') else BASE_DIR / 'media'
+if IS_SERVERLESS:
+    import shutil
+    tmp_media = Path('/tmp/media')
+    if not tmp_media.exists():
+        try:
+            if (BASE_DIR / 'media').exists():
+                shutil.copytree(BASE_DIR / 'media', tmp_media, dirs_exist_ok=True)
+            else:
+                tmp_media.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            tmp_media.mkdir(parents=True, exist_ok=True)
+    MEDIA_ROOT = tmp_media
+else:
+    MEDIA_ROOT = BASE_DIR / 'media'
+
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

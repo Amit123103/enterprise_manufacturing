@@ -9,9 +9,9 @@ __pycache__/
 *$py.class
 *.so
 
-# Local SQLite databases
-db.sqlite3
+# Local SQLite journal files
 db.sqlite3-journal
+
 
 # Local Environment variables
 .env
@@ -33,5 +33,3 @@ pytest.ini
 *.pdf
 generate_documentation_pdf.py
 
-# Local media uploads
-media/
