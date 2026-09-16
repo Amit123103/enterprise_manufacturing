@@ -13,6 +13,9 @@ DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
 if allowed_hosts_env:
     ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+    for default_h in ('.vercel.app', '.now.sh', 'localhost', '127.0.0.1'):
+        if default_h not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(default_h)
 else:
     ALLOWED_HOSTS = ['*', '.vercel.app', '.now.sh', 'localhost', '127.0.0.1']
 
@@ -20,6 +23,8 @@ else:
 csrf_trusted_env = os.getenv('CSRF_TRUSTED_ORIGINS', '')
 if csrf_trusted_env:
     CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_trusted_env.split(',') if origin.strip()]
+    if 'https://*.vercel.app' not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append('https://*.vercel.app')
 else:
     CSRF_TRUSTED_ORIGINS = [
         'https://*.vercel.app',
@@ -27,6 +32,7 @@ else:
         'http://localhost:8000',
         'http://127.0.0.1:8000',
     ]
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -191,3 +197,32 @@ REST_FRAMEWORK = {
 # Max upload size: 25MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400
 FILE_UPLOAD_MAX_MEMORY_SIZE = 26214400
+
+# Logging: Stream errors to stdout/stderr for Vercel Runtime Logs
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '[%(asctime)s] %(levelname)s %(name)s: %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
+
