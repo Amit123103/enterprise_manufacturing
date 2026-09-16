@@ -6,8 +6,10 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-manufacturing-system-default-key-2026')
+_secret_key = os.getenv('SECRET_KEY', '').strip()
+SECRET_KEY = _secret_key if _secret_key else 'django-insecure-manufacturing-system-default-key-2026-super-secure-production-fallback'
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
+
 
 # Hosts & Security
 allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
@@ -106,8 +108,9 @@ ASGI_APPLICATION = 'config.asgi.application'
 IS_SERVERLESS = bool(os.getenv('VERCEL') or os.getenv('VERCEL_ENV') or os.getenv('AWS_LAMBDA_FUNCTION_NAME') or os.path.exists('/var/task'))
 
 # Database
-DATABASE_URL = os.getenv('DATABASE_URL')
+DATABASE_URL = os.getenv('DATABASE_URL', '').strip() or None
 USE_POSTGRES = os.getenv('USE_POSTGRES', 'False').lower() in ('true', '1', 'yes')
+
 
 if DATABASE_URL:
     import dj_database_url
