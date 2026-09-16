@@ -1,0 +1,85 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}Products | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Products{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">Products</h1>
+        <p class="page-subtitle">Track products, batch numbers, current stages, and QR tags.</p>
+    </div>
+    {% if can_create_product %}
+    <a href="/admin-panel/products/create/" class="btn btn-primary btn-sm">
+        + New Product
+    </a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">All Products</h3>
+        <span class="badge badge-info">{{ products.count }} Total</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name & Part</th>
+                    <th>Customer</th>
+                    <th>Batch</th>
+                    <th>Stage</th>
+                    <th>Status</th>
+                    <th>Progress</th>
+                    <th>QR Tag</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td>
+                        <a href="/admin-panel/products/{{ p.product_id }}/" style="font-weight: 600; color: #2563eb;">
+                            {{ p.product_id }}
+                        </a>
+                    </td>
+                    <td>
+                        <div style="font-weight: 500;">{{ p.product_name }}</div>
+                        <div style="font-size: 11px; color: #6b7280;">PN: {{ p.part_number }}</div>
+                    </td>
+                    <td>{{ p.customer }}</td>
+                    <td><code>{{ p.batch_number|default:"-" }}</code></td>
+                    <td>
+                        <span class="badge badge-{{ p.current_stage|lower }}">{{ p.get_current_stage_display }}</span>
+                    </td>
+                    <td>
+                        <span class="badge {% if p.status == 'APPROVED' %}badge-success{% elif p.status == 'REJECTED' %}badge-danger{% elif p.status == 'HOLD' %}badge-warning{% else %}badge-info{% endif %}">
+                            {{ p.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="width: 80px; background: #e5e7eb; border-radius: 4px; height: 6px; overflow: hidden;">
+                            <div style="width: {{ p.stage_progress_percent }}%; background: #2563eb; height: 100%;"></div>
+                        </div>
+                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">{{ p.stage_progress_percent }}%</div>
+                    </td>
+                    <td>
+                        {% if p.qr_code_image %}
+                        <img src="{{ p.qr_code_image.url }}" alt="QR" style="width: 28px; height: 28px; border: 1px solid #e5e7eb; border-radius: 4px;">
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/admin-panel/products/{{ p.product_id }}/" class="btn btn-secondary btn-sm">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" style="text-align: center; color: #9ca3af; padding: 24px;">No products found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

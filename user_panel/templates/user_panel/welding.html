@@ -1,0 +1,53 @@
+{% extends "user_panel/base_user.html" %}
+
+{% block title %}Welding | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Welding{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">Welding Station</h1>
+        <p class="page-subtitle">Welding stages 1 to 5. Stage 1 requires Golden Sample comparison.</p>
+    </div>
+    <span class="badge badge-welding" style="font-size: 12px; padding: 4px 10px;">Stage 3 of 6</span>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Queue</h3>
+        <span class="badge badge-info">{{ products.count }} Lots</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Part Number</th>
+                    <th>Stage 1</th>
+                    <th>Stage 2</th>
+                    <th>Stage 3</th>
+                    <th>Stage 4</th>
+                    <th>Stage 5</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td><strong>{{ p.product_id }}</strong></td>
+                    <td><code>{{ p.part_number }}</code></td>
+                    <td><a href="/user-panel/welding/{{ p.product_id }}/1/" class="btn btn-secondary btn-sm">Stage 1</a></td>
+                    <td><a href="/user-panel/welding/{{ p.product_id }}/2/" class="btn btn-secondary btn-sm">Stage 2</a></td>
+                    <td><a href="/user-panel/welding/{{ p.product_id }}/3/" class="btn btn-secondary btn-sm">Stage 3</a></td>
+                    <td><a href="/user-panel/welding/{{ p.product_id }}/4/" class="btn btn-secondary btn-sm">Stage 4</a></td>
+                    <td><a href="/user-panel/welding/{{ p.product_id }}/5/" class="btn btn-primary btn-sm">Stage 5</a></td>
+                    <td><span class="badge badge-info">{{ p.get_status_display }}</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" style="text-align: center; color: #059669; padding: 24px;">No products in queue for Welding.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

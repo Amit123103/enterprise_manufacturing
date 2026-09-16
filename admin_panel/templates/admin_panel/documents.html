@@ -1,0 +1,107 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}Documents & Samples | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Documents{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">Documents & Samples</h1>
+        <p class="page-subtitle">Engineering drawings, specifications, and approved master samples.</p>
+    </div>
+    {% if can_upload %}
+    <a href="/admin-panel/documents/upload/" class="btn btn-primary btn-sm">
+        + Upload Document
+    </a>
+    {% endif %}
+</div>
+
+<!-- Documents List -->
+<div class="card" style="margin-bottom: 20px;">
+    <div class="card-header">
+        <h3 class="card-title">Documents</h3>
+        <span class="badge badge-info">{{ documents.count }} Files</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Document Name</th>
+                    <th>Type</th>
+                    <th>Product</th>
+                    <th>Version</th>
+                    <th>Uploaded By</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td><strong>{{ doc.name }}</strong></td>
+                    <td><span class="badge badge-secondary">{{ doc.get_document_type_display }}</span></td>
+                    <td>{{ doc.product.product_id|default:"Global Master" }}</td>
+                    <td><code>v{{ doc.version }}.r{{ doc.revision }}</code></td>
+                    <td>{{ doc.uploaded_by.username|default:"-" }}</td>
+                    <td style="color: #6b7280;">{{ doc.uploaded_date|date:"Y-m-d" }}</td>
+                    <td>
+                        {% if doc.file %}
+                        <a href="{{ doc.file.url }}" target="_blank" class="btn btn-secondary btn-sm">Download</a>
+                        {% else %}
+                        <span style="font-size: 11px; color: #9ca3af;">No file</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #9ca3af; padding: 24px;">No documents uploaded yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Approved Golden Samples -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Approved Master Samples</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Sample ID</th>
+                    <th>Name</th>
+                    <th>Product</th>
+                    <th>Part Number</th>
+                    <th>Status</th>
+                    <th>Approved By</th>
+                    <th>Approval Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in samples %}
+                <tr>
+                    <td><code>{{ s.sample_id }}</code></td>
+                    <td><strong>{{ s.sample_name }}</strong></td>
+                    <td>{{ s.product.product_id }}</td>
+                    <td>{{ s.part_number }}</td>
+                    <td>
+                        <span class="badge {% if s.approval_status == 'APPROVED' %}badge-success{% else %}badge-warning{% endif %}">
+                            {{ s.approval_status }}
+                        </span>
+                    </td>
+                    <td>{{ s.approved_by.username|default:"Pending" }}</td>
+                    <td style="color: #6b7280;">{{ s.approval_date|date:"Y-m-d"|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #9ca3af; padding: 20px;">No master samples registered.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

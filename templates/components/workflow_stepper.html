@@ -1,0 +1,99 @@
+<!-- Production Workflow Stepper -->
+<div class="workflow-stepper">
+    <div class="workflow-header">
+        <div>
+            <h3 style="font-size: 14px; font-weight: 600; color: #1f2937; display: flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                Production Workflow
+                {% if product %}
+                <span class="badge badge-info" style="font-size: 11px;">{{ product.product_id }}</span>
+                {% endif %}
+            </h3>
+            <p style="font-size: 12px; color: #6b7280; margin-top: 2px;">Sequential progression from Bending to Dispatch</p>
+        </div>
+        {% if product %}
+        <div>
+            <span class="badge {% if product.status == 'APPROVED' %}badge-success{% elif product.status == 'REJECTED' %}badge-danger{% elif product.status == 'HOLD' %}badge-warning{% else %}badge-info{% endif %}" style="font-size: 12px; padding: 4px 10px;">
+                {{ product.get_status_display }} ({{ product.stage_progress_percent }}%)
+            </span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Stepper Nodes Container -->
+    <div class="stage-nodes-container">
+        <!-- 1. BENDING -->
+        <a href="{% if is_admin %}/admin-panel/production/bending/{% else %}/user-panel/bending/{% endif %}" 
+           class="stage-node {% if product.current_stage == 'BENDING' %}current{% elif product.current_stage in 'PRESSING,WELDING,PAINT,PDI,DISPATCH,COMPLETED' %}passed{% endif %}"
+           title="Bending Stage">
+            <div class="stage-circle">1</div>
+            <div class="stage-name">Bending</div>
+            <div class="stage-sub">Tube Spec</div>
+        </a>
+
+        <div class="stage-connector {% if product.current_stage in 'PRESSING,WELDING,PAINT,PDI,DISPATCH,COMPLETED' %}completed{% endif %}"></div>
+
+        <!-- 2. PRESSING (Subprocesses: Blanking, Forming, Pearling, Restricting) -->
+        <a href="{% if is_admin %}/admin-panel/production/pressing/{% else %}/user-panel/pressing/{% endif %}" 
+           class="stage-node {% if product.current_stage == 'PRESSING' %}current{% elif product.current_stage in 'WELDING,PAINT,PDI,DISPATCH,COMPLETED' %}passed{% endif %}"
+           title="Pressing Stage">
+            <div class="stage-circle">2</div>
+            <div class="stage-name">Pressing</div>
+            <div class="stage-sub">4 Operations</div>
+        </a>
+
+        <div class="stage-connector {% if product.current_stage in 'WELDING,PAINT,PDI,DISPATCH,COMPLETED' %}completed{% endif %}"></div>
+
+        <!-- 3. WELDING (Stages 1-5) -->
+        <a href="{% if is_admin %}/admin-panel/production/welding/{% else %}/user-panel/welding/{% endif %}" 
+           class="stage-node {% if product.current_stage == 'WELDING' %}current{% elif product.current_stage in 'PAINT,PDI,DISPATCH,COMPLETED' %}passed{% endif %}"
+           title="Welding Stage">
+            <div class="stage-circle">3</div>
+            <div class="stage-name">Welding</div>
+            <div class="stage-sub">Stages 1-5</div>
+        </a>
+
+        <div class="stage-connector {% if product.current_stage in 'PAINT,PDI,DISPATCH,COMPLETED' %}completed{% endif %}"></div>
+
+        <!-- 4. PAINT (CEO & PC Approvals) -->
+        <a href="{% if is_admin %}/admin-panel/production/paint/{% else %}/user-panel/paint/{% endif %}" 
+           class="stage-node {% if product.current_stage == 'PAINT' %}current{% elif product.current_stage in 'PDI,DISPATCH,COMPLETED' %}passed{% endif %}"
+           title="Paint Stage">
+            <div class="stage-circle">4</div>
+            <div class="stage-name">Paint</div>
+            <div class="stage-sub">Dual Sign-off</div>
+        </a>
+
+        <div class="stage-connector {% if product.current_stage in 'PDI,DISPATCH,COMPLETED' %}completed{% endif %}"></div>
+
+        <!-- 5. PDI (Pre-Dispatch Inspection) -->
+        <a href="{% if is_admin %}/admin-panel/quality/pdi/{% else %}/user-panel/pdi/{% endif %}" 
+           class="stage-node {% if product.current_stage == 'PDI' %}current{% elif product.current_stage in 'DISPATCH,COMPLETED' %}passed{% endif %}"
+           title="Pre-Dispatch Inspection">
+            <div class="stage-circle">5</div>
+            <div class="stage-name">PDI</div>
+            <div class="stage-sub">Inspection</div>
+        </a>
+
+        <div class="stage-connector {% if product.current_stage in 'DISPATCH,COMPLETED' %}completed{% endif %}"></div>
+
+        <!-- 6. DISPATCH -->
+        <a href="{% if is_admin %}/admin-panel/production/dispatch/{% else %}/user-panel/dispatch/{% endif %}" 
+           class="stage-node {% if product.current_stage == 'DISPATCH' %}current{% elif product.current_stage == 'COMPLETED' %}passed{% endif %}"
+           title="Dispatch Stage">
+            <div class="stage-circle">6</div>
+            <div class="stage-name">Dispatch</div>
+            <div class="stage-sub">Verification</div>
+        </a>
+    </div>
+
+    <!-- Sub-stages Breakdown -->
+    <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid #e5e7eb; display: flex; flex-wrap: wrap; gap: 10px; font-size: 11px; color: #6b7280;">
+        <span style="font-weight: 600; color: #374151;">Process Details:</span>
+        <span><strong>Pressing:</strong> Blanking, Forming, Pearling, Restricting</span>
+        <span>&bull;</span>
+        <span><strong>Welding:</strong> Stages 1 to 5</span>
+        <span>&bull;</span>
+        <span><strong>Gatekeeper:</strong> Requires all prior stages cleared</span>
+    </div>
+</div>

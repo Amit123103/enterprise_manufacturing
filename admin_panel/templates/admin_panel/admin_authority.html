@@ -1,0 +1,177 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}Permissions - {{ admin_user.username }} | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Permissions{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">Admin Permissions</h1>
+        <p class="page-subtitle">Configure module permissions and operational scopes for <strong>{{ admin_user.full_name|default:admin_user.username }}</strong> ({{ admin_user.email }}).</p>
+    </div>
+    <a href="/admin-panel/admins/" class="btn btn-secondary btn-sm">&larr; Back to Admins</a>
+</div>
+
+<!-- Role Template Preset Box -->
+<div class="card" style="margin-bottom: 20px;">
+    <div class="card-body" style="padding: 16px 20px;">
+        <form method="post" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            {% csrf_token %}
+            <div style="font-weight: 600; color: #1f2937; font-size: 13px;">
+                Apply Role Preset:
+            </div>
+            <select name="apply_template" class="form-select" style="width: auto; min-width: 200px;">
+                {% for tpl in available_templates %}
+                <option value="{{ tpl }}">{{ tpl }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('Apply this role preset? Existing checkboxes will be updated.')">
+                Apply Preset
+            </button>
+            <span style="font-size: 12px; color: #6b7280;">(Individual permissions can still be adjusted below)</span>
+        </form>
+    </div>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Operational Scope -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+            <h3 class="card-title">Operational Scope</h3>
+            <span class="badge badge-secondary">Restrictions</span>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Authorized Stages</label>
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                            <input type="checkbox" name="scope_stages" value="BENDING" class="checkbox-custom" {% if 'BENDING' in scope.stages or not scope.stages %}checked{% endif %}>
+                            Bending
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                            <input type="checkbox" name="scope_stages" value="PRESSING" class="checkbox-custom" {% if 'PRESSING' in scope.stages or not scope.stages %}checked{% endif %}>
+                            Pressing
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                            <input type="checkbox" name="scope_stages" value="WELDING" class="checkbox-custom" {% if 'WELDING' in scope.stages or not scope.stages %}checked{% endif %}>
+                            Welding
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                            <input type="checkbox" name="scope_stages" value="PAINT" class="checkbox-custom" {% if 'PAINT' in scope.stages or not scope.stages %}checked{% endif %}>
+                            Paint
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                            <input type="checkbox" name="scope_stages" value="PDI" class="checkbox-custom" {% if 'PDI' in scope.stages or not scope.stages %}checked{% endif %}>
+                            PDI
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                            <input type="checkbox" name="scope_stages" value="DISPATCH" class="checkbox-custom" {% if 'DISPATCH' in scope.stages or not scope.stages %}checked{% endif %}>
+                            Dispatch
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="scope_departments">Allowed Departments (comma separated)</label>
+                    <input type="text" id="scope_departments" name="scope_departments" class="form-control" value="{{ scope.departments|join:', ' }}" placeholder="e.g. Fabrication, Stamping, Quality">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permissions Matrix -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+            <h3 class="card-title">Module Permissions Matrix</h3>
+            <span style="font-size: 12px; color: #6b7280;">Check the boxes for actions this admin may perform</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table-custom matrix-table">
+                <thead>
+                    <tr>
+                        <th>Module</th>
+                        <th style="text-align: center;">View</th>
+                        <th style="text-align: center;">Create</th>
+                        <th style="text-align: center;">Edit</th>
+                        <th style="text-align: center;">Delete</th>
+                        <th style="text-align: center;">Approve</th>
+                        <th style="text-align: center;">Export</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in matrix_rows %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 500;">{{ row.label }}</div>
+                            <div style="font-size: 11px; color: #9ca3af; font-family: monospace;">{{ row.code }}</div>
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="checkbox" name="{{ row.code }}_view" class="checkbox-custom" {% if row.can_view %}checked{% endif %}>
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="checkbox" name="{{ row.code }}_create" class="checkbox-custom" {% if row.can_create %}checked{% endif %}>
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="checkbox" name="{{ row.code }}_edit" class="checkbox-custom" {% if row.can_edit %}checked{% endif %}>
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="checkbox" name="{{ row.code }}_delete" class="checkbox-custom" {% if row.can_delete %}checked{% endif %}>
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="checkbox" name="{{ row.code }}_approve" class="checkbox-custom" {% if row.can_approve %}checked{% endif %}>
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="checkbox" name="{{ row.code }}_export" class="checkbox-custom" {% if row.can_export %}checked{% endif %}>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div style="padding: 14px 20px; background: #f9fafb; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 12px; color: #6b7280;">
+                Changes take effect immediately and will be logged in the audit trail.
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Save Permissions
+            </button>
+        </div>
+    </div>
+</form>
+
+<!-- Permission Change History -->
+{% if change_history %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Change History for {{ admin_user.username }}</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Module</th>
+                    <th>Previous</th>
+                    <th>Updated</th>
+                    <th>Changed By</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in change_history %}
+                <tr>
+                    <td style="color: #6b7280;">{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+                    <td><span class="badge badge-secondary">{{ log.module }}</span></td>
+                    <td><code style="font-size: 11px;">{{ log.old_permissions }}</code></td>
+                    <td><code style="font-size: 11px; color: #2563eb;">{{ log.new_permissions }}</code></td>
+                    <td>{{ log.changed_by.username|default:"Super Admin" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

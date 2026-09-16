@@ -1,0 +1,79 @@
+{% extends "user_panel/base_user.html" %}
+
+{% block title %}Execute Dispatch - {{ product.product_id }} | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Dispatch Form{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto;">
+    <div style="margin-bottom: 20px;">
+        <h1 class="page-title">Dispatch Clearance</h1>
+        <p class="page-subtitle">Product: <strong>{{ product.product_id }}</strong> &bull; Customer: <strong>{{ product.customer }}</strong></p>
+    </div>
+
+    {% if not is_eligible %}
+    <div class="alert alert-danger" style="margin-bottom: 20px;">
+        <strong>Dispatch Blocked:</strong> This product does not meet mandatory dispatch criteria:
+        <ul style="margin-top: 8px; margin-left: 20px;">
+            {% for issue in issues %}
+            <li>{{ issue }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Logistics Information</h3>
+            <span class="badge badge-success">Verified</span>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Client / Destination *</label>
+                        <input type="text" class="form-control" value="{{ product.customer }}" readonly style="background: #f9fafb;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Packaging Standard *</label>
+                        <input type="text" name="packing_status" class="form-control" value="Export Standard Wooden Crate + Anti-corrosive VCI" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Vehicle Registration Number *</label>
+                        <input type="text" name="vehicle_number" class="form-control" placeholder="e.g. MH-12-AB-9876" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Transporter *</label>
+                        <input type="text" name="transporter" class="form-control" placeholder="e.g. BlueDart Logistics" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Invoice Number *</label>
+                        <input type="text" name="invoice_number" class="form-control" placeholder="e.g. INV-2026-8891" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bill of Lading / LR Number</label>
+                        <input type="text" name="reference_number" class="form-control" placeholder="e.g. LR-992384">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Remarks</label>
+                    <textarea name="remarks" class="form-control" rows="2" placeholder="Loaded safely, seals intact..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <a href="/user-panel/dispatch/" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Confirm Dispatch</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

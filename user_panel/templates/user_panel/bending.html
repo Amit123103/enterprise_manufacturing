@@ -1,0 +1,74 @@
+{% extends "user_panel/base_user.html" %}
+
+{% block title %}Bending | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Bending{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">Bending Station</h1>
+        <p class="page-subtitle">Verify tube size, wall thickness, and critical dimensions.</p>
+    </div>
+    <span class="badge badge-bending" style="font-size: 12px; padding: 4px 10px;">Stage 1 of 6</span>
+</div>
+
+<!-- Reference Documents -->
+<div class="card" style="margin-bottom: 20px;">
+    <div class="card-header">
+        <h3 class="card-title">Reference Documents & SOPs</h3>
+    </div>
+    <div style="padding: 12px 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+        {% for doc in documents %}
+        {% if doc.file %}
+        <a href="{{ doc.file.url }}" target="_blank" class="btn btn-secondary btn-sm" style="font-size: 11px;">
+            {{ doc.name }} ({{ doc.get_document_type_display }})
+        </a>
+        {% endif %}
+        {% empty %}
+        <span style="font-size: 12px; color: #6b7280;">Standard SOPs: DWG-BEND-01, PFD-01, CP-BEND-REV2</span>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Active Bending Queue -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Queue</h3>
+        <span class="badge badge-info">{{ products.count }} Lots</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Part Number</th>
+                    <th>Product Name</th>
+                    <th>Customer</th>
+                    <th>Batch</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td><strong>{{ p.product_id }}</strong></td>
+                    <td><code>{{ p.part_number }}</code></td>
+                    <td>{{ p.product_name }}</td>
+                    <td>{{ p.customer }}</td>
+                    <td>{{ p.batch_number|default:"-" }}</td>
+                    <td><span class="badge badge-info">{{ p.get_status_display }}</span></td>
+                    <td>
+                        <a href="/user-panel/bending/{{ p.product_id }}/submit/" class="btn btn-primary btn-sm">
+                            Enter Data
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" style="text-align: center; color: #059669; padding: 24px;">No products in queue for Bending.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+<aside class="app-sidebar">
+    <div class="sidebar-header">
+        <div class="brand-icon">O</div>
+        <div class="brand-title">
+            <span>MFG-CONTROL</span>
+            <span class="brand-subtitle">Operator View</span>
+        </div>
+    </div>
+
+    <div class="sidebar-scroll">
+        <div class="sidebar-section-title">Workspace</div>
+        
+        <a href="/user-panel/dashboard/" class="nav-link {% if request.path == '/user-panel/dashboard/' or request.path == '/user-panel/' %}active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Dashboard
+        </a>
+
+        <a href="/user-panel/my-products/" class="nav-link {% if '/user-panel/my-products/' in request.path %}active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+            My Products
+        </a>
+
+        <a href="/user-panel/scanner/" class="nav-link {% if '/user-panel/scanner/' in request.path %}active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            QR Scanner
+        </a>
+
+        <!-- Stages -->
+        <div class="sidebar-section-title">Production Stages</div>
+
+        {% if user_is_super_admin or user_is_admin or 'bending' in user_modules or user.production_stage == 'BENDING' %}
+        <a href="/user-panel/bending/" class="nav-link {% if '/user-panel/bending/' in request.path %}active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 12a4 4 0 0 1 8 0"></path></svg>
+            Bending
+        </a>
+        {% endif %}
+
+        {% if user_is_super_admin or user_is_admin or 'pressing' in user_modules or user.production_stage == 'PRESSING' %}
+        <a href="/user-panel/pressing/" class="nav-link {% if '/user-panel/pressing/' in request.path %}active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"></rect><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+            Pressing
+        </a>
+        {% endif %}
+
+        {% if user_is_super_admin or user_is_admin or 'welding' in user_modules or user.production_stage == 'WELDING' %}
+        <a href="/user-panel/welding/" class="nav-link {% if '/user-panel/welding/' in request.path %}active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            Welding
+        </a>
+        {% endif %}
+
+        {% if user_is_super_admin or user_is_admin or 'paint' in user_modules or user.production_stage == 'PAINT' %}
+        <a href="/user-panel/paint/" class="nav-link {% if '/user-panel/paint/' in request.path %}active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+            Paint
+        </a>
+        {% endif %}
+
+        {% if user_is_super_admin or user_is_admin or 'pdi' in user_modules or user.production_stage == 'PDI' %}
+        <a href="/user-panel/pdi/" class="nav-link {% if '/user-panel/pdi/' in request.path %}active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            PDI Inspection
+        </a>
+        {% endif %}
+
+        {% if user_is_super_admin or user_is_admin or 'dispatch' in user_modules or user.production_stage == 'DISPATCH' %}
+        <a href="/user-panel/dispatch/" class="nav-link {% if '/user-panel/dispatch/' in request.path %}active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+            Dispatch
+        </a>
+        {% endif %}
+
+        <div class="sidebar-section-title">Documents</div>
+        <a href="/user-panel/documents/" class="nav-link {% if '/user-panel/documents/' in request.path %}active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            Documents & SOPs
+        </a>
+    </div>
+
+    <!-- Operator Profile Strip -->
+    <div class="sidebar-user">
+        <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
+        <div class="user-info">
+            <div class="user-name">{{ user.full_name|default:user.username }}</div>
+            <span class="user-role-badge">{{ user.get_role_display }}</span>
+        </div>
+    </div>
+</aside>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}Reports | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Reports{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">{{ title }}</h1>
+        <p class="page-subtitle">Export production, quality, rejection, and dispatch reports.</p>
+    </div>
+    <!-- Export Buttons -->
+    <div style="display: flex; gap: 8px;">
+        <a href="?type={{ report_type }}&export=csv" class="btn btn-secondary btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export CSV
+        </a>
+        <a href="?type={{ report_type }}&export=excel" class="btn btn-secondary btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg>
+            Export Excel
+        </a>
+        <a href="?type={{ report_type }}&export=pdf" class="btn btn-secondary btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            Export PDF
+        </a>
+    </div>
+</div>
+
+<!-- Report Navigation Tabs -->
+<div class="nav-tabs" style="margin-bottom: 20px;">
+    <a href="?type=production" class="nav-tab-item {% if report_type == 'production' %}active{% endif %}">Daily Production</a>
+    <a href="?type=quality" class="nav-tab-item {% if report_type == 'quality' %}active{% endif %}">Quality Inspections</a>
+    <a href="?type=rejections" class="nav-tab-item {% if report_type == 'rejections' %}active{% endif %}">Rejections</a>
+    <a href="?type=dispatch" class="nav-tab-item {% if report_type == 'dispatch' %}active{% endif %}">Dispatch</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{{ title }}</h3>
+        <span class="badge badge-info">{{ total_count }} Total Records</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    {% for h in headers %}
+                    <th>{{ h }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="{{ headers|length }}" style="text-align: center; color: #9ca3af; padding: 24px;">No records found for this report.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

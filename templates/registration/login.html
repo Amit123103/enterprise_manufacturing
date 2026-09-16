@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | Manufacturing Management</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body {
+            background: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 880px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+        }
+
+        .login-banner {
+            background: #111827;
+            padding: 40px 32px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .login-banner .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 32px;
+        }
+
+        .login-banner h1 {
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 12px;
+        }
+
+        .login-banner p {
+            color: #9ca3af;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 12px;
+            color: #d1d5db;
+        }
+
+        .feature-list div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feature-list .check {
+            color: #60a5fa;
+            font-weight: 600;
+        }
+
+        .demo-box {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 14px;
+            margin-top: 20px;
+        }
+
+        .demo-box .label {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #60a5fa;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+
+        .demo-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .demo-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 150ms;
+        }
+
+        .demo-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .login-form-side {
+            padding: 40px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-form-side h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .login-form-side .subtitle {
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+
+        .login-form-side .form-group {
+            margin-bottom: 16px;
+        }
+
+        .login-submit {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 150ms;
+        }
+
+        .login-submit:hover {
+            background: #1d4ed8;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+                max-width: 420px;
+            }
+            .login-banner {
+                padding: 28px 24px;
+            }
+            .login-form-side {
+                padding: 28px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Left Banner -->
+        <div class="login-banner">
+            <div>
+                <div class="logo">
+                    <div class="brand-icon">M</div>
+                    <div>
+                        <div style="font-size: 16px; font-weight: 700;">Manufacturing</div>
+                        <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af;">Management System</div>
+                    </div>
+                </div>
+
+                <h1>Production Tracking & Quality Control</h1>
+                <p>Manage your manufacturing process from raw material to dispatch. Track every stage, inspect quality, and maintain full records.</p>
+
+                <div class="feature-list">
+                    <div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Role-based access for admins and operators</div>
+                    <div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> 6-stage production workflow tracking</div>
+                    <div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> QR code scanning for quick product lookup</div>
+                    <div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Quality inspection and rejection management</div>
+                </div>
+            </div>
+
+            <!-- Demo Credentials -->
+            <div class="demo-box">
+                <div class="label">Quick Demo Access</div>
+                <div class="demo-buttons">
+                    <button type="button" class="demo-btn" onclick="fillLogin('superadmin@example.com', 'SuperAdmin123!')">Super Admin</button>
+                    <button type="button" class="demo-btn" onclick="fillLogin('production.admin@example.com', 'AdminPass123!')">Production Admin</button>
+                    <button type="button" class="demo-btn" onclick="fillLogin('quality.admin@example.com', 'AdminPass123!')">Quality Admin</button>
+                    <button type="button" class="demo-btn" onclick="fillLogin('bending.user@example.com', 'UserPass123!')">Operator</button>
+                    <button type="button" class="demo-btn" onclick="fillLogin('pdi.user@example.com', 'UserPass123!')">PDI Inspector</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Form -->
+        <div class="login-form-side">
+            <h2>Sign In</h2>
+            <p class="subtitle">Enter your credentials to access the system.</p>
+
+            {% if messages %}
+            {% for msg in messages %}
+            <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+            {% endfor %}
+            {% endif %}
+
+            <form method="post" action="/login/">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="username">Email or Username</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="name@company.com" required autofocus>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+
+                <button type="submit" class="login-submit">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function fillLogin(user, pass) {
+            document.getElementById('username').value = user;
+            document.getElementById('password').value = pass;
+        }
+    </script>
+</body>
+</html>

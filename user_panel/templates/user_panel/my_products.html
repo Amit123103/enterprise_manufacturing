@@ -1,0 +1,58 @@
+{% extends "user_panel/base_user.html" %}
+
+{% block title %}My Products | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}My Products{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h1 class="page-title">My Products</h1>
+    <p class="page-subtitle">Products assigned to your workstation or stage.</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Products</h3>
+        <span class="badge badge-info">{{ products.count }} Total</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Part Number</th>
+                    <th>Product Name</th>
+                    <th>Customer</th>
+                    <th>Stage</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td>
+                        <a href="/user-panel/products/{{ p.product_id }}/" style="font-weight: 600; color: #2563eb;">
+                            {{ p.product_id }}
+                        </a>
+                    </td>
+                    <td><code>{{ p.part_number }}</code></td>
+                    <td>{{ p.product_name }}</td>
+                    <td>{{ p.customer }}</td>
+                    <td><span class="badge badge-{{ p.current_stage|lower }}">{{ p.get_current_stage_display }}</span></td>
+                    <td>
+                        <span class="badge {% if p.status == 'APPROVED' %}badge-success{% elif p.status == 'REJECTED' %}badge-danger{% elif p.status == 'HOLD' %}badge-warning{% else %}badge-info{% endif %}">
+                            {{ p.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="/user-panel/products/{{ p.product_id }}/" class="btn btn-secondary btn-sm">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" style="text-align: center; color: #9ca3af; padding: 24px;">No products in queue.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

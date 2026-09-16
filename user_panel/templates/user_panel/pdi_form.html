@@ -1,0 +1,68 @@
+{% extends "user_panel/base_user.html" %}
+
+{% block title %}PDI Inspection - {{ product.product_id }} | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}PDI Form{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto;">
+    <div style="margin-bottom: 20px;">
+        <h1 class="page-title">Pre-Dispatch Inspection (PDI)</h1>
+        <p class="page-subtitle">Product: <strong>{{ product.product_id }}</strong> &bull; Part: <strong>{{ product.part_number }}</strong> ({{ product.product_name }})</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Inspection Checklist</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; margin-bottom: 10px; font-size: 13px; color: #1f2937;">Inspection Criteria:</div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked class="checkbox-custom">
+                            Surface Quality: Free of scratches, dents, and burrs
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked class="checkbox-custom">
+                            Weld Bead Integrity: Clean, consistent penetration
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked class="checkbox-custom">
+                            Paint Finish: Uniform coverage, no defects
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked class="checkbox-custom">
+                            Dimensions & Tolerances: Verified with digital calipers
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked class="checkbox-custom">
+                            Labeling & QR Identification: Legible and verified
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">PDI Result *</label>
+                    <select name="pdi_result" class="form-select" style="font-weight: 600;">
+                        <option value="PASS" selected>PASS - Authorize for Dispatch</option>
+                        <option value="FAIL">FAIL - Defect Found (Quarantine Product)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Remarks</label>
+                    <textarea name="remarks" class="form-control" rows="3" placeholder="Inspection findings or drawing notes..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <a href="/user-panel/pdi/" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Submit PDI Result</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "user_panel/base_user.html" %}
+
+{% block title %}Pressing | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Pressing{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">Pressing Station</h1>
+        <p class="page-subtitle">Subprocesses: <strong>Blanking</strong> &bull; <strong>Forming</strong> &bull; <strong>Pearling</strong> &bull; <strong>Restricting</strong></p>
+    </div>
+    <span class="badge badge-pressing" style="font-size: 12px; padding: 4px 10px;">Stage 2 of 6</span>
+</div>
+
+<!-- Active Pressing Lots Queue -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Queue</h3>
+        <span class="badge badge-info">{{ products.count }} Lots</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Part Number</th>
+                    <th>Blanking</th>
+                    <th>Forming</th>
+                    <th>Pearling</th>
+                    <th>Restricting</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td><strong>{{ p.product_id }}</strong></td>
+                    <td><code>{{ p.part_number }}</code></td>
+                    <td>
+                        <a href="/user-panel/pressing/{{ p.product_id }}/blanking/" class="btn btn-secondary btn-sm">
+                            Blanking
+                        </a>
+                    </td>
+                    <td>
+                        <a href="/user-panel/pressing/{{ p.product_id }}/forming/" class="btn btn-secondary btn-sm">
+                            Forming
+                        </a>
+                    </td>
+                    <td>
+                        <a href="/user-panel/pressing/{{ p.product_id }}/pearling/" class="btn btn-secondary btn-sm">
+                            Pearling
+                        </a>
+                    </td>
+                    <td>
+                        <a href="/user-panel/pressing/{{ p.product_id }}/restricting/" class="btn btn-secondary btn-sm">
+                            Restricting
+                        </a>
+                    </td>
+                    <td>
+                        <span class="badge badge-info">{{ p.get_status_display }}</span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" style="text-align: center; color: #059669; padding: 24px;">No products in queue for Pressing.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

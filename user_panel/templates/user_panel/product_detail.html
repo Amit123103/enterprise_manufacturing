@@ -1,0 +1,57 @@
+{% extends "user_panel/base_user.html" %}
+
+{% block title %}{{ product.product_id }} | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}{{ product.product_id }}{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 20px;">
+    <div class="card-body" style="padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; gap: 16px; align-items: center;">
+                {% if product.qr_code_image %}
+                <img src="{{ product.qr_code_image.url }}" alt="QR" style="width: 64px; height: 64px; border: 1px solid #e5e7eb; border-radius: 4px;">
+                {% endif %}
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <h1 style="font-size: 20px; font-weight: 700; color: #111827;">{{ product.product_id }}</h1>
+                        <span class="badge badge-{{ product.current_stage|lower }}">{{ product.get_current_stage_display }}</span>
+                        <span class="badge {% if product.status == 'APPROVED' %}badge-success{% elif product.status == 'REJECTED' %}badge-danger{% elif product.status == 'HOLD' %}badge-warning{% else %}badge-info{% endif %}">
+                            {{ product.get_status_display }}
+                        </span>
+                    </div>
+                    <div style="font-size: 14px; font-weight: 500; color: #374151;">{{ product.product_name }} (PN: {{ product.part_number }})</div>
+                    <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">Customer: {{ product.customer }} &bull; Batch: {{ product.batch_number|default:"-" }}</div>
+                </div>
+            </div>
+
+            <div>
+                <a href="/user-panel/{{ product.current_stage|lower }}/" class="btn btn-primary btn-sm">
+                    Open {{ product.get_current_stage_display }} Form
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Stepper -->
+{% include "components/workflow_stepper.html" with product=product is_admin=False %}
+
+<!-- Specifications Card -->
+<div class="card">
+    <div class="card-header"><h3 class="card-title">Specifications</h3></div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; font-size: 13px;">
+            <div>Customer: <strong>{{ product.customer }}</strong></div>
+            <div>Model: <strong>{{ product.model|default:"Standard" }}</strong></div>
+            <div>Production Date: <strong>{{ product.production_date }}</strong></div>
+            <div>Dispatch Status: 
+                {% if can_dispatch %}
+                <span class="badge badge-success">Cleared</span>
+                {% else %}
+                <span class="badge badge-danger">Blocked: {{ dispatch_issues.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

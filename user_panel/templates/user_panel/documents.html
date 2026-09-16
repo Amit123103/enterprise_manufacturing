@@ -1,0 +1,54 @@
+{% extends "user_panel/base_user.html" %}
+
+{% block title %}Documents & SOPs | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Documents{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h1 class="page-title">Documents & SOPs</h1>
+    <p class="page-subtitle">Engineering drawings, standard operating procedures, and packaging standards.</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Shop Floor Documents</h3>
+        <span class="badge badge-info">{{ documents.count }} Files</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Part Number</th>
+                    <th>Version</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td><strong>{{ doc.name }}</strong></td>
+                    <td><span class="badge badge-secondary">{{ doc.get_document_type_display }}</span></td>
+                    <td>{{ doc.part_number|default:"Global Master" }}</td>
+                    <td><code>v{{ doc.version }}.r{{ doc.revision }}</code></td>
+                    <td style="color: #6b7280;">{{ doc.uploaded_date|date:"Y-m-d" }}</td>
+                    <td>
+                        {% if doc.file %}
+                        <a href="{{ doc.file.url }}" target="_blank" class="btn btn-secondary btn-sm">
+                            Download
+                        </a>
+                        {% else %}
+                        <span style="font-size: 11px; color: #9ca3af;">No file</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" style="text-align: center; color: #9ca3af; padding: 24px;">No documents available.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

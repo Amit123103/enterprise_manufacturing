@@ -1,0 +1,79 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}Users | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Users{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">Users</h1>
+        <p class="page-subtitle">Manage operators, inspectors, and stage assignments.</p>
+    </div>
+    {% if can_create_user %}
+    <a href="/admin-panel/users/create/" class="btn btn-primary btn-sm">
+        + New User
+    </a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">All Users</h3>
+        <span class="badge badge-info">{{ users.count }} Total</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Employee ID</th>
+                    <th>Role</th>
+                    <th>Assigned Stage</th>
+                    <th>Supervisor</th>
+                    <th>Shift</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 600;">{{ u.full_name|default:u.username }}</div>
+                        <div style="font-size: 11px; color: #6b7280;">{{ u.email }}</div>
+                    </td>
+                    <td><code>{{ u.employee_id }}</code></td>
+                    <td>
+                        <span class="badge badge-secondary">{{ u.get_role_display }}</span>
+                    </td>
+                    <td>
+                        <div><strong>{{ u.production_stage|default:"Unassigned" }}</strong></div>
+                        <div style="font-size: 11px; color: #6b7280;">Line: {{ u.production_line|default:"Standard" }}</div>
+                    </td>
+                    <td>
+                        {% if u.assigned_admin %}
+                        <span style="font-size: 12px; color: #2563eb; font-weight: 500;">{{ u.assigned_admin.username }}</span>
+                        {% else %}
+                        <span style="color: #9ca3af; font-size: 12px;">Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ u.shift|default:"General" }}</td>
+                    <td>
+                        <span class="badge {% if u.status == 'ACTIVE' %}badge-success{% elif u.status == 'SUSPENDED' %}badge-danger{% else %}badge-warning{% endif %}">
+                            {{ u.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="/admin-panel/users/{{ u.id }}/edit/" class="btn btn-secondary btn-sm">Edit</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: #9ca3af; padding: 24px;">No users found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

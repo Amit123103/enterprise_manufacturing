@@ -1,0 +1,91 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}QR Scanner | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}QR Scanner{% endblock %}
+
+{% block extra_head %}
+<script src="https://unpkg.com/html5-qrcode"></script>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto;">
+    <div style="margin-bottom: 20px;">
+        <h1 class="page-title">QR Scanner</h1>
+        <p class="page-subtitle">Scan a product QR code using your camera or enter the Product ID manually.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px;">
+        <!-- Camera Scanner -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Camera Scanner</h3>
+            </div>
+            <div class="card-body" style="text-align: center;">
+                <div id="reader" style="width: 100%; min-height: 240px; border-radius: 6px; overflow: hidden; background: #111827;"></div>
+                <div style="margin-top: 12px; font-size: 12px; color: #6b7280;">
+                    Point your camera at the printed product QR code.
+                </div>
+            </div>
+        </div>
+
+        <!-- Manual Entry -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Manual Entry</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" id="manualLookupForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="form-label">Product ID</label>
+                        <input type="text" id="product_id_input" name="product_id" class="form-control" placeholder="e.g. PROD-2026-00001" required autofocus style="text-transform: uppercase; font-weight: 600;">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        Lookup Product
+                    </button>
+                </form>
+
+                <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid #e5e7eb;">
+                    <div style="font-size: 11px; font-weight: 600; color: #6b7280; margin-bottom: 8px;">Sample IDs:</div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setAndSubmit('PROD-2026-00001')">PROD-2026-00001 (Bending)</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setAndSubmit('PROD-2026-00002')">PROD-2026-00002 (Pressing)</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setAndSubmit('PROD-2026-00006')">PROD-2026-00006 (Dispatch)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function setAndSubmit(id) {
+        document.getElementById('product_id_input').value = id;
+        document.getElementById('manualLookupForm').submit();
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+        let prodId = decodedText;
+        if (decodedText.includes('MFG-ID:')) {
+            const parts = decodedText.split('|');
+            for (let part of parts) {
+                if (part.startsWith('MFG-ID:')) {
+                    prodId = part.replace('MFG-ID:', '').trim();
+                    break;
+                }
+            }
+        }
+        document.getElementById('product_id_input').value = prodId;
+        document.getElementById('manualLookupForm').submit();
+    }
+
+    if (typeof Html5QrcodeScanner !== 'undefined') {
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", { fps: 10, qrbox: { width: 200, height: 200 } }, false
+        );
+        html5QrcodeScanner.render(onScanSuccess, (err) => {});
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "user_panel/base_user.html" %}
+
+{% block title %}PDI Inspection | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}PDI Inspection{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">PDI Inspection</h1>
+        <p class="page-subtitle">Pre-dispatch quality audit before packaging and shipping.</p>
+    </div>
+    <span class="badge badge-pdi" style="font-size: 12px; padding: 4px 10px;">Stage 5 of 6</span>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Queue</h3>
+        <span class="badge badge-info">{{ products.count }} Lots</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Part Number</th>
+                    <th>Product Name</th>
+                    <th>Customer</th>
+                    <th>Batch</th>
+                    <th>PDI Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td><strong>{{ p.product_id }}</strong></td>
+                    <td><code>{{ p.part_number }}</code></td>
+                    <td>{{ p.product_name }}</td>
+                    <td>{{ p.customer }}</td>
+                    <td>{{ p.batch_number|default:"-" }}</td>
+                    <td>
+                        {% if p.pdi_record.is_approved %}
+                        <span class="badge badge-success">Approved</span>
+                        {% else %}
+                        <span class="badge badge-warning">Awaiting Inspection</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/user-panel/pdi/{{ p.product_id }}/" class="btn btn-primary btn-sm">
+                            Inspect
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" style="text-align: center; color: #059669; padding: 24px;">No products in queue for PDI inspection.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

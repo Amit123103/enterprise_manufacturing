@@ -1,0 +1,85 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}Admins | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Admins{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">Admins</h1>
+        <p class="page-subtitle">Manage administrator accounts, status, and module permissions.</p>
+    </div>
+    <a href="/admin-panel/admins/create/" class="btn btn-primary btn-sm">
+        + New Admin
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">All Admins</h3>
+        <span class="badge badge-info">{{ admins.count }} Total</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Employee ID</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for admin in admins %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 600;">{{ admin.full_name|default:admin.username }}</div>
+                        <div style="font-size: 11px; color: #6b7280;">@{{ admin.username }}</div>
+                    </td>
+                    <td><code>{{ admin.employee_id }}</code></td>
+                    <td>{{ admin.email }}</td>
+                    <td>
+                        <div>{{ admin.department|default:"Operations" }}</div>
+                        <div style="font-size: 11px; color: #6b7280;">{{ admin.designation|default:"Manager" }}</div>
+                    </td>
+                    <td>
+                        <span class="badge {% if admin.status == 'ACTIVE' %}badge-success{% elif admin.status == 'SUSPENDED' %}badge-danger{% else %}badge-warning{% endif %}">
+                            {{ admin.get_status_display }}
+                        </span>
+                    </td>
+                    <td style="color: #6b7280;">{{ admin.created_at|date:"Y-m-d" }}</td>
+                    <td>
+                        <div style="display: flex; gap: 6px;">
+                            <a href="/admin-panel/admins/{{ admin.id }}/authority/" class="btn btn-secondary btn-sm" title="Configure Permissions">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10"/><path d="M7 12h10"/><path d="M7 16h10"/></svg>
+                                Permissions
+                            </a>
+
+                            <form method="post" action="/admin-panel/admins/{{ admin.id }}/toggle-status/" style="display:inline;">
+                                {% csrf_token %}
+                                {% if admin.status == 'ACTIVE' %}
+                                <button type="submit" name="action" value="suspend" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to suspend this admin account?')">
+                                    Suspend
+                                </button>
+                                {% else %}
+                                <button type="submit" name="action" value="activate" class="btn btn-sm btn-success">
+                                    Activate
+                                </button>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #9ca3af; padding: 24px;">No admin accounts created yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

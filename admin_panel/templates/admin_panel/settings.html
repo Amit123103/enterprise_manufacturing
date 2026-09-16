@@ -1,0 +1,70 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}Settings | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Settings{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h1 class="page-title">Settings</h1>
+    <p class="page-subtitle">Defect categories and role permission presets.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <!-- Rejection Categories -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Defect Categories</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Defect Category</th>
+                        <th>Code</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reasons %}
+                    <tr>
+                        <td><strong>{{ r.name }}</strong></td>
+                        <td><code>{{ r.code|default:"DEF-STD" }}</code></td>
+                        <td><span class="badge badge-success">Active</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" style="text-align: center; color: #9ca3af; padding: 16px;">No defect categories configured.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Permission Templates -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Role Presets</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Role Preset</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>Production Admin</strong></td><td><span class="badge badge-secondary">Built-in Preset</span></td></tr>
+                    <tr><td><strong>Quality Admin</strong></td><td><span class="badge badge-secondary">Built-in Preset</span></td></tr>
+                    <tr><td><strong>Welding Admin</strong></td><td><span class="badge badge-secondary">Built-in Preset</span></td></tr>
+                    <tr><td><strong>Paint Admin</strong></td><td><span class="badge badge-secondary">Built-in Preset</span></td></tr>
+                    <tr><td><strong>PDI Admin</strong></td><td><span class="badge badge-secondary">Built-in Preset</span></td></tr>
+                    <tr><td><strong>Dispatch Admin</strong></td><td><span class="badge badge-secondary">Built-in Preset</span></td></tr>
+                    <tr><td><strong>Document Admin</strong></td><td><span class="badge badge-secondary">Built-in Preset</span></td></tr>
+                    <tr><td><strong>Operations Admin</strong></td><td><span class="badge badge-secondary">Built-in Preset</span></td></tr>
+                    <tr><td><strong>Full Admin</strong></td><td><span class="badge badge-secondary">Built-in Preset</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

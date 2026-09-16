@@ -1,0 +1,68 @@
+{% extends "user_panel/base_user.html" %}
+
+{% block title %}Record Bending - {{ product.product_id }} | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Bending Form{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto;">
+    <div style="margin-bottom: 20px;">
+        <h1 class="page-title">Bending Measurement</h1>
+        <p class="page-subtitle">Product: <strong>{{ product.product_id }}</strong> &bull; Part: <strong>{{ product.part_number }}</strong> ({{ product.product_name }})</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Dimensional Verification</h3>
+            <span class="badge badge-warning">Inspection</span>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Tube Outer Diameter *</label>
+                        <input type="text" name="tube_size" class="form-control" value="{{ record.tube_size|default:'38.1 mm' }}" required>
+                        <span style="font-size: 11px; color: #6b7280;">Tolerance: &plusmn;0.15 mm</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tube Wall Thickness *</label>
+                        <input type="text" name="thickness" class="form-control" value="{{ record.thickness|default:'2.0 mm' }}" required>
+                        <span style="font-size: 11px; color: #6b7280;">Tolerance: &plusmn;0.10 mm</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Bend Angle (deg) *</label>
+                        <input type="text" name="bend_angle" class="form-control" value="90.2" required>
+                        <span style="font-size: 11px; color: #6b7280;">Expected: 90.0&deg; (Tolerance: &plusmn;1.0&deg;)</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Critical Dimension Result *</label>
+                        <select name="critical_dimension_status" class="form-select">
+                            <option value="PASS" selected>PASS (Within Tolerance)</option>
+                            <option value="FAIL">FAIL (Out of Tolerance - Auto Rejection)</option>
+                            <option value="HOLD">HOLD (Engineering Review)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Operator Remarks</label>
+                    <textarea name="remarks" class="form-control" rows="3" placeholder="Notes or machine observations..."></textarea>
+                </div>
+
+                <div style="background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #e5e7eb; margin-bottom: 20px; font-size: 12px; color: #4b5563;">
+                    <strong>Note:</strong> Selecting <strong>FAIL</strong> will automatically log a quality rejection and flag this product as rejected.
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <a href="/user-panel/bending/" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Submit Bending Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

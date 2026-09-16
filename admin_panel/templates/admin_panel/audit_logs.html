@@ -1,0 +1,84 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}Audit Logs | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Audit Logs{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">Audit Logs</h1>
+        <p class="page-subtitle">Track logins, permission changes, stage updates, and approvals.</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom: 20px;">
+    <div class="card-body" style="padding: 14px 20px;">
+        <form method="get" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <label class="form-label" style="margin-bottom: 0;">Filter by Action:</label>
+            <select name="action" class="form-select" style="width: auto; min-width: 200px;">
+                <option value="">All Actions</option>
+                {% for act_val, act_label in action_choices %}
+                <option value="{{ act_val }}" {% if selected_action == act_val %}selected{% endif %}>{{ act_label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-secondary btn-sm">Filter</button>
+            {% if selected_action %}
+            <a href="/admin-panel/audit-logs/" class="btn btn-secondary btn-sm">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Audit Events</h3>
+        <span class="badge badge-info">Latest 100 Entries</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Target Entity</th>
+                    <th>Details</th>
+                    <th>IP Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td style="color: #6b7280; font-size: 12px;">{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+                    <td>
+                        <strong>{{ log.user.username|default:"System" }}</strong>
+                        {% if log.user %}
+                        <div style="font-size: 11px; color: #6b7280;">{{ log.user.get_role_display }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge {% if 'CREATED' in log.action or 'ACTIVATED' in log.action %}badge-success{% elif 'SUSPENDED' in log.action or 'REJECTION' in log.action %}badge-danger{% else %}badge-secondary{% endif %}">
+                            {{ log.get_action_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <strong>{{ log.entity }}</strong>
+                        {% if log.entity_id %}<span style="font-size: 11px; color: #6b7280;">(#{{ log.entity_id }})</span>{% endif %}
+                    </td>
+                    <td style="max-width: 320px; word-break: break-word;">
+                        {% if log.old_value %}<div style="font-size: 11px; color: #9ca3af;">Old: {{ log.old_value }}</div>{% endif %}
+                        <div style="font-size: 12px; color: #1f2937;">{{ log.new_value|default:"-" }}</div>
+                    </td>
+                    <td><code style="font-size: 11px;">{{ log.ip_address|default:"-" }}</code></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: #9ca3af; padding: 24px;">No audit events found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

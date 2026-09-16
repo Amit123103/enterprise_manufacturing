@@ -1,0 +1,113 @@
+{% extends "user_panel/base_user.html" %}
+
+{% block title %}Dashboard | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Dashboard{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">Operator Dashboard</h1>
+        <p class="page-subtitle">Assigned Stage: <strong>{{ assigned_stage }}</strong> &bull; Shift: <strong>{{ user.shift|default:"General" }}</strong></p>
+    </div>
+    <a href="/user-panel/scanner/" class="btn btn-primary btn-sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Scan QR
+    </a>
+</div>
+
+<!-- Operator KPI Cards -->
+<div class="metrics-grid">
+    <div class="metric-card">
+        <div class="metric-info">
+            <h4>Pending</h4>
+            <div class="metric-val" style="color: #2563eb;">{{ pending_tasks }}</div>
+            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">Awaiting Processing</div>
+        </div>
+        <div class="metric-icon blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-info">
+            <h4>In Progress</h4>
+            <div class="metric-val" style="color: #059669;">{{ in_progress }}</div>
+            <div style="font-size: 11px; color: #059669; margin-top: 4px;">Active on Line</div>
+        </div>
+        <div class="metric-icon green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-info">
+            <h4>On Hold</h4>
+            <div class="metric-val" style="color: #d97706;">{{ hold_count }}</div>
+            <div style="font-size: 11px; color: #d97706; margin-top: 4px;">Requires Attention</div>
+        </div>
+        <div class="metric-icon amber">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Stepper -->
+{% include "components/workflow_stepper.html" with is_admin=False %}
+
+<!-- Priority Station Queue Table -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">My Queue ({{ assigned_stage }})</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Part Number</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in my_products %}
+                <tr>
+                    <td>
+                        <a href="/user-panel/products/{{ p.product_id }}/" style="font-weight: 600; color: #2563eb;">
+                            {{ p.product_id }}
+                        </a>
+                    </td>
+                    <td><strong>{{ p.product_name }}</strong></td>
+                    <td>{{ p.part_number }}</td>
+                    <td>{{ p.customer }}</td>
+                    <td>
+                        <span class="badge {% if p.status == 'APPROVED' %}badge-success{% elif p.status == 'REJECTED' %}badge-danger{% elif p.status == 'HOLD' %}badge-warning{% else %}badge-info{% endif %}">
+                            {{ p.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge {% if p.priority == 'URGENT' or p.priority == 'HIGH' %}badge-danger{% else %}badge-secondary{% endif %}">
+                            {{ p.priority }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="/user-panel/{{ p.current_stage|lower }}/" class="btn btn-primary btn-sm">
+                            Open Form
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #059669; padding: 24px;">
+                        No pending products for {{ assigned_stage }} stage.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

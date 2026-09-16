@@ -1,0 +1,101 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}Quality & Rejections | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Quality{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">Quality & Rejections</h1>
+        <p class="page-subtitle">Inspection records, non-conformance reports, and corrective actions.</p>
+    </div>
+    <a href="/admin-panel/quality/rejections/create/" class="btn btn-danger btn-sm">
+        + Log Rejection
+    </a>
+</div>
+
+<!-- Rejections Table -->
+<div class="card" style="margin-bottom: 20px;">
+    <div class="card-header">
+        <h3 class="card-title">Rejection Records</h3>
+        <span class="badge badge-danger">{{ rejections.count }} Logged</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Stage</th>
+                    <th>Defect Reason</th>
+                    <th>Description</th>
+                    <th>Logged By</th>
+                    <th>Status</th>
+                    <th>Corrective Action</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rejections %}
+                <tr>
+                    <td>
+                        <a href="/admin-panel/products/{{ r.product.product_id }}/" style="font-weight: 600; color: #2563eb;">
+                            {{ r.product.product_id }}
+                        </a>
+                    </td>
+                    <td><span class="badge badge-secondary">{{ r.stage }}</span></td>
+                    <td style="color: #dc2626; font-weight: 600;">{{ r.reason.name }}</td>
+                    <td>{{ r.description }}</td>
+                    <td>{{ r.created_by.username|default:"Inspector" }}</td>
+                    <td><span class="badge badge-danger">{{ r.get_status_display }}</span></td>
+                    <td>{{ r.corrective_action|default:"Pending investigation" }}</td>
+                    <td style="color: #6b7280;">{{ r.date|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: #059669; padding: 24px;">No active quality rejections.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Inspections Table -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Recent Inspections</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Inspection ID</th>
+                    <th>Product ID</th>
+                    <th>Stage</th>
+                    <th>Inspector</th>
+                    <th>Result</th>
+                    <th>Date</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for insp in inspections %}
+                <tr>
+                    <td><code>{{ insp.inspection_id }}</code></td>
+                    <td><strong>{{ insp.product.product_id }}</strong></td>
+                    <td><span class="badge badge-secondary">{{ insp.stage }}</span></td>
+                    <td>{{ insp.inspector.username|default:"Inspector" }}</td>
+                    <td><span class="badge {% if insp.result == 'PASS' %}badge-success{% else %}badge-danger{% endif %}">{{ insp.result }}</span></td>
+                    <td style="color: #6b7280;">{{ insp.date|date:"Y-m-d H:i" }}</td>
+                    <td>{{ insp.remarks|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #9ca3af; padding: 24px;">No inspections recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

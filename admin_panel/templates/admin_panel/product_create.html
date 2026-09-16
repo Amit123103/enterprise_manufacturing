@@ -1,0 +1,88 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}New Product | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Create Product{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto;">
+    <div style="margin-bottom: 20px;">
+        <h1 class="page-title">New Product</h1>
+        <p class="page-subtitle">Product ID and QR code are automatically generated upon creation.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Product Details</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Product Name *</label>
+                        {{ form.product_name }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Part Number *</label>
+                        {{ form.part_number }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Customer *</label>
+                        {{ form.customer }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Model</label>
+                        {{ form.model }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Batch Number</label>
+                        {{ form.batch_number }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Production Date</label>
+                        {{ form.production_date }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Supervising Admin</label>
+                        {{ form.assigned_admin }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Assigned Operator</label>
+                        {{ form.assigned_user }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Initial Stage</label>
+                        {{ form.current_stage }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        {{ form.status }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Priority</label>
+                        {{ form.priority }}
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <a href="/admin-panel/products/" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Create Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}Upload Document | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Upload Document{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto;">
+    <div style="margin-bottom: 20px;">
+        <h1 class="page-title">Upload Document</h1>
+        <p class="page-subtitle">Upload engineering drawings, specifications, control plans, or packing standards.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Document Details</h3></div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Document Title *</label>
+                        {{ form.name }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        {{ form.document_type }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Associated Product (optional)</label>
+                        {{ form.product }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Part Number</label>
+                        {{ form.part_number }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Version</label>
+                        {{ form.version }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Revision</label>
+                        {{ form.revision }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">File (PDF, CAD, Images, Documents) *</label>
+                    {{ form.file }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    {{ form.description }}
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <a href="/admin-panel/documents/" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Upload Document</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

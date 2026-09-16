@@ -1,0 +1,60 @@
+{% extends "user_panel/base_user.html" %}
+
+{% block title %}Pressing ({{ proc_type }}) - {{ product.product_id }} | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Pressing {{ proc_type }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto;">
+    <div style="margin-bottom: 20px;">
+        <h1 class="page-title">Pressing: {{ proc_type }}</h1>
+        <p class="page-subtitle">Product: <strong>{{ product.product_id }}</strong> &bull; Part: <strong>{{ product.part_number }}</strong> ({{ product.product_name }})</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Operation: {{ proc_type }}</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                {% if proc_type == 'BLANKING' %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">DIM Report Number *</label>
+                        <input type="text" name="dim_report_number" class="form-control" value="{{ record.dim_report_number|default:'DIM-REP-2026-001' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Critical Dimension Status *</label>
+                        <select name="critical_dimension_result" class="form-select">
+                            <option value="PASS" selected>PASS</option>
+                            <option value="FAIL">FAIL</option>
+                            <option value="HOLD">HOLD</option>
+                        </select>
+                    </div>
+                </div>
+                {% else %}
+                <div class="form-group">
+                    <label class="form-label">Process Inspection Result *</label>
+                    <select name="critical_dimension_result" class="form-select">
+                        <option value="PASS" selected>PASS (Dimension Verified)</option>
+                        <option value="FAIL">FAIL (Burr, Cracks, or Deviation)</option>
+                        <option value="HOLD">HOLD (Requires Tooling Adjustment)</option>
+                    </select>
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label class="form-label">Remarks</label>
+                    <textarea name="remarks" class="form-control" rows="3" placeholder="Die clearance, lubrication, surface check notes..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <a href="/user-panel/pressing/" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save {{ proc_type }} Operation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Enterprise Manufacturing Management{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        {% block sidebar %}
+        {% endblock %}
+
+        <!-- Main Workspace -->
+        <div class="app-main">
+            <header class="app-header">
+                <div class="header-left">
+                    <button class="btn btn-secondary btn-sm" id="sidebarToggle" style="display:none;" onclick="document.querySelector('.app-sidebar').classList.toggle('open')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    {% block breadcrumb %}
+                    <div class="page-breadcrumb">
+                        <a href="/">Home</a>
+                        <span>/</span>
+                        <span>{% block breadcrumb_active %}Dashboard{% endblock %}</span>
+                    </div>
+                    {% endblock %}
+                </div>
+
+                <div class="header-right">
+                    <!-- Notifications Dropdown -->
+                    <div style="position: relative;">
+                        <button class="notification-bell" onclick="document.getElementById('notifDropdown').classList.toggle('active')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                            {% if unread_notifications_count > 0 %}
+                            <span class="bell-badge">{{ unread_notifications_count }}</span>
+                            {% endif %}
+                        </button>
+                        <div id="notifDropdown" class="dropdown-menu" style="display:none; position:absolute; right:0; top:45px; width:320px; background:white; border-radius:8px; border:1px solid #e2e8f0; box-shadow:0 10px 25px rgba(0,0,0,0.1); z-index:1000; padding:12px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:8px; margin-bottom:8px;">
+                                <strong style="font-size:13px;">Notifications</strong>
+                                <span class="badge badge-info">{{ unread_notifications_count }} New</span>
+                            </div>
+                            <div style="max-height:260px; overflow-y:auto;">
+                                {% for notif in recent_notifications %}
+                                <div style="padding:8px 6px; border-bottom:1px solid #f8fafc; font-size:12px;">
+                                    <div style="font-weight:600; color:#1e293b;">{{ notif.title }}</div>
+                                    <div style="color:#64748b;">{{ notif.message|truncatechars:70 }}</div>
+                                    <div style="color:#94a3b8; font-size:10px; margin-top:3px;">{{ notif.created_at|timesince }} ago</div>
+                                </div>
+                                {% empty %}
+                                <div style="padding:16px; text-align:center; color:#94a3b8; font-size:12px;">No new notifications</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel Switcher (if Admin) -->
+                    {% if user.is_authenticated and user.is_admin_user %}
+                        {% if '/user-panel/' in request.path %}
+                        <a href="/admin-panel/dashboard/" class="btn btn-secondary btn-sm" title="Switch to Admin Dashboard">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            Admin View
+                        </a>
+                        {% else %}
+                        <a href="/user-panel/dashboard/" class="btn btn-secondary btn-sm" title="Switch to Shop Floor Operator View">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+                            User View
+                        </a>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- Logout -->
+                    <a href="/logout/" class="btn btn-secondary btn-sm" style="color:#dc2626;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        Logout
+                    </a>
+                </div>
+            </header>
+
+            <div class="content-body">
+                {% if messages %}
+                <div class="messages-container" style="margin-bottom: 20px;">
+                    {% for msg in messages %}
+                    <div class="alert alert-{{ msg.tags }}">
+                        {{ msg }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle notification dropdown
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('notifDropdown');
+            const bell = document.querySelector('.notification-bell');
+            if (dropdown && bell && !bell.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+        const bellBtn = document.querySelector('.notification-bell');
+        if (bellBtn) {
+            bellBtn.addEventListener('click', function() {
+                const dd = document.getElementById('notifDropdown');
+                dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+            });
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

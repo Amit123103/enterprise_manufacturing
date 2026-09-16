@@ -1,0 +1,402 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}{{ product.product_id }} - {{ product.product_name }} | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}Product {{ product.product_id }}{% endblock %}
+
+{% block content %}
+<!-- Product Header Box -->
+<div class="card" style="margin-bottom: 20px;">
+    <div class="card-body" style="padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; gap: 16px; align-items: center;">
+                {% if product.qr_code_image %}
+                <div style="text-align: center; background: white; padding: 4px; border: 1px solid #e5e7eb; border-radius: 6px;">
+                    <img src="{{ product.qr_code_image.url }}" alt="QR Code" style="width: 72px; height: 72px; display: block;">
+                    <a href="{{ product.qr_code_image.url }}" download style="font-size: 10px; color: #2563eb; font-weight: 500;">Download</a>
+                </div>
+                {% endif %}
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <h1 style="font-size: 20px; font-weight: 700; color: #111827;">{{ product.product_id }}</h1>
+                        <span class="badge badge-{{ product.current_stage|lower }}">
+                            {{ product.get_current_stage_display }}
+                        </span>
+                        <span class="badge {% if product.status == 'APPROVED' %}badge-success{% elif product.status == 'REJECTED' %}badge-danger{% elif product.status == 'HOLD' %}badge-warning{% else %}badge-info{% endif %}">
+                            {{ product.get_status_display }}
+                        </span>
+                    </div>
+                    <div style="font-size: 14px; font-weight: 500; color: #374151;">{{ product.product_name }}</div>
+                    <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">
+                        Part No: <strong>{{ product.part_number }}</strong> &bull; Customer: <strong>{{ product.customer }}</strong> &bull; Model: <strong>{{ product.model|default:"Standard" }}</strong> &bull; Batch: <strong>{{ product.batch_number|default:"-" }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dispatch Gatekeeper Indicator -->
+            <div style="text-align: right;">
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: #6b7280; margin-bottom: 4px;">Dispatch Status</div>
+                {% if can_dispatch %}
+                <span class="badge badge-success" style="font-size: 11px; padding: 4px 10px;">Cleared for Dispatch</span>
+                {% else %}
+                <span class="badge badge-danger" style="font-size: 11px; padding: 4px 10px;">Dispatch Blocked</span>
+                <div style="font-size: 11px; color: #dc2626; margin-top: 4px; max-width: 240px;">
+                    {{ dispatch_issues.0 }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Stepper Component -->
+{% include "components/workflow_stepper.html" with product=product is_admin=True %}
+
+<!-- Navigation Tabs -->
+<div class="nav-tabs" id="productTabs">
+    <a href="#tab-overview" class="nav-tab-item active" onclick="switchTab('tab-overview', this); return false;">Overview</a>
+    <a href="#tab-production" class="nav-tab-item" onclick="switchTab('tab-production', this); return false;">Production Records</a>
+    <a href="#tab-quality" class="nav-tab-item" onclick="switchTab('tab-quality', this); return false;">Quality & Inspections</a>
+    <a href="#tab-documents" class="nav-tab-item" onclick="switchTab('tab-documents', this); return false;">Documents</a>
+    <a href="#tab-approvals" class="nav-tab-item" onclick="switchTab('tab-approvals', this); return false;">Approvals</a>
+    <a href="#tab-rejections" class="nav-tab-item" onclick="switchTab('tab-rejections', this); return false;">Rejections</a>
+    <a href="#tab-activity" class="nav-tab-item" onclick="switchTab('tab-activity', this); return false;">Audit Trail</a>
+</div>
+
+<!-- TAB 1: OVERVIEW -->
+<div id="tab-overview" class="tab-pane" style="display: block;">
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Specifications</h3></div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 13px;">
+                    <div><span style="color:#6b7280;">Product ID:</span> <strong>{{ product.product_id }}</strong></div>
+                    <div><span style="color:#6b7280;">Part Number:</span> <strong>{{ product.part_number }}</strong></div>
+                    <div><span style="color:#6b7280;">Customer:</span> <strong>{{ product.customer }}</strong></div>
+                    <div><span style="color:#6b7280;">Production Date:</span> <strong>{{ product.production_date }}</strong></div>
+                    <div><span style="color:#6b7280;">Managing Admin:</span> <strong>{{ product.assigned_admin.username|default:"Unassigned" }}</strong></div>
+                    <div><span style="color:#6b7280;">Assigned Operator:</span> <strong>{{ product.assigned_user.username|default:"Unassigned" }}</strong></div>
+                    <div><span style="color:#6b7280;">Current Stage:</span> <span class="badge badge-{{ product.current_stage|lower }}">{{ product.get_current_stage_display }}</span></div>
+                    <div><span style="color:#6b7280;">Overall Status:</span> <strong>{{ product.get_status_display }}</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Stage Status</h3></div>
+            <div class="card-body">
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+                    <div style="display:flex; justify-content:space-between; align-items: center;">
+                        <span>Bending</span>
+                        <span class="badge {% if stage_statuses.bending == 'PASSED' %}badge-success{% else %}badge-secondary{% endif %}">{{ stage_statuses.bending }}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items: center;">
+                        <span>Pressing</span>
+                        <span class="badge {% if stage_statuses.pressing == 'PASSED' %}badge-success{% else %}badge-secondary{% endif %}">{{ stage_statuses.pressing }}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items: center;">
+                        <span>Welding</span>
+                        <span class="badge {% if stage_statuses.welding == 'PASSED' %}badge-success{% else %}badge-secondary{% endif %}">{{ stage_statuses.welding }}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items: center;">
+                        <span>Paint</span>
+                        <span class="badge {% if stage_statuses.paint == 'PASSED' %}badge-success{% else %}badge-secondary{% endif %}">{{ stage_statuses.paint }}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items: center;">
+                        <span>PDI</span>
+                        <span class="badge {% if stage_statuses.pdi == 'PASSED' %}badge-success{% else %}badge-secondary{% endif %}">{{ stage_statuses.pdi }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 2: PRODUCTION RECORDS -->
+<div id="tab-production" class="tab-pane" style="display: none;">
+    <!-- Bending Record -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+            <h3 class="card-title">1. Bending Record</h3>
+            {% if bending %}
+            <span class="badge {% if bending.status == 'COMPLETED' or bending.status == 'APPROVED' %}badge-success{% else %}badge-warning{% endif %}">{{ bending.status }}</span>
+            {% else %}
+            <span class="badge badge-secondary">Pending</span>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            {% if bending %}
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; font-size: 13px; margin-bottom: 12px;">
+                <div>Tube Size: <strong>{{ bending.tube_size }}</strong></div>
+                <div>Thickness: <strong>{{ bending.thickness }}</strong></div>
+                <div>Critical Dimension: <strong>{{ bending.critical_dimension_status }}</strong></div>
+                <div>Operator: <strong>{{ bending.operator.username|default:"N/A" }}</strong></div>
+            </div>
+            {% if bending.measurements %}
+            <div style="background: #f9fafb; padding: 10px; border-radius: 6px; font-size: 12px; border: 1px solid #e5e7eb;">
+                <strong>Logged Measurements:</strong>
+                <pre style="margin-top: 4px; font-family: monospace;">{{ bending.measurements|safe }}</pre>
+            </div>
+            {% endif %}
+            {% else %}
+            <p style="color: #6b7280;">No bending operation data recorded yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Pressing Records -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+            <h3 class="card-title">2. Pressing Operations</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Operation</th>
+                        <th>DIM Report #</th>
+                        <th>Critical Dim Result</th>
+                        <th>Status</th>
+                        <th>Operator</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pr in pressing_records %}
+                    <tr>
+                        <td><strong>{{ pr.get_process_type_display }}</strong></td>
+                        <td>{{ pr.dim_report_number|default:"-" }}</td>
+                        <td><span class="badge {% if pr.critical_dimension_result == 'PASS' %}badge-success{% else %}badge-danger{% endif %}">{{ pr.critical_dimension_result }}</span></td>
+                        <td><span class="badge badge-info">{{ pr.status }}</span></td>
+                        <td>{{ pr.operator.username|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" style="text-align: center; color: #9ca3af; padding: 16px;">No pressing operations recorded.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Welding Records -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">3. Welding Stages (Stages 1 to 5)</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Stage</th>
+                        <th>Approved Sample ID</th>
+                        <th>Result</th>
+                        <th>Status</th>
+                        <th>Operator</th>
+                        <th>Approval</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for w in welding_records %}
+                    <tr>
+                        <td><strong>{{ w.stage_name }}</strong></td>
+                        <td>{{ w.approved_sample_id|default:"-" }}</td>
+                        <td><span class="badge {% if w.result == 'PASS' %}badge-success{% else %}badge-danger{% endif %}">{{ w.result }}</span></td>
+                        <td><span class="badge badge-info">{{ w.status }}</span></td>
+                        <td>{{ w.operator.username|default:"-" }}</td>
+                        <td>{{ w.approved_by.username|default:"Pending Approval" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" style="text-align: center; color: #9ca3af; padding: 16px;">No welding stages logged.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 3: QUALITY & INSPECTIONS -->
+<div id="tab-quality" class="tab-pane" style="display: none;">
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Quality Inspection Records</h3></div>
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Inspection ID</th>
+                        <th>Stage</th>
+                        <th>Result</th>
+                        <th>Inspector</th>
+                        <th>Date</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for insp in inspections %}
+                    <tr>
+                        <td><strong>{{ insp.inspection_id }}</strong></td>
+                        <td><span class="badge badge-secondary">{{ insp.stage }}</span></td>
+                        <td><span class="badge {% if insp.result == 'PASS' %}badge-success{% else %}badge-danger{% endif %}">{{ insp.result }}</span></td>
+                        <td>{{ insp.inspector.username|default:"-" }}</td>
+                        <td>{{ insp.date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ insp.remarks|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" style="text-align: center; color: #9ca3af; padding: 20px;">No quality inspections recorded.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 4: DOCUMENTS -->
+<div id="tab-documents" class="tab-pane" style="display: none;">
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Attached Documents</h3></div>
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Document Name</th>
+                        <th>Category</th>
+                        <th>Version</th>
+                        <th>Uploaded By</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents %}
+                    <tr>
+                        <td><strong>{{ doc.name }}</strong></td>
+                        <td><span class="badge badge-info">{{ doc.get_document_type_display }}</span></td>
+                        <td>v{{ doc.version }}.r{{ doc.revision }}</td>
+                        <td>
+                            {% if doc.file %}
+                            <a href="{{ doc.file.url }}" target="_blank" class="btn btn-secondary btn-sm">Download</a>
+                            {% else %}
+                            <span style="font-size: 11px; color: #9ca3af;">No file</span>
+                            {% endif %}
+                        </td>
+                    {% empty %}
+                    <tr><td colspan="5" style="text-align: center; color: #9ca3af; padding: 20px;">No attached documents.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 5: APPROVALS -->
+<div id="tab-approvals" class="tab-pane" style="display: none;">
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Paint Approvals</h3></div>
+        <div class="card-body">
+            {% if paint %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; background: #f9fafb;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
+                        <strong>CEO Sign-off</strong>
+                        <span class="badge {% if paint.ceo_approved %}badge-success{% else %}badge-warning{% endif %}">
+                            {% if paint.ceo_approved %}Approved{% else %}Pending{% endif %}
+                        </span>
+                    </div>
+                    <div style="font-size: 13px; color: #6b7280;">Signer: {{ paint.ceo_approved_by.username|default:"Pending" }}</div>
+                    <div style="font-size: 13px; color: #6b7280;">Date: {{ paint.ceo_approval_date|date:"Y-m-d H:i"|default:"-" }}</div>
+                </div>
+
+                <div style="border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; background: #f9fafb;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
+                        <strong>PC (Production Control) Sign-off</strong>
+                        <span class="badge {% if paint.pc_approved %}badge-success{% else %}badge-warning{% endif %}">
+                            {% if paint.pc_approved %}Approved{% else %}Pending{% endif %}
+                        </span>
+                    </div>
+                    <div style="font-size: 13px; color: #6b7280;">Signer: {{ paint.pc_approved_by.username|default:"Pending" }}</div>
+                    <div style="font-size: 13px; color: #6b7280;">Date: {{ paint.pc_approval_date|date:"Y-m-d H:i"|default:"-" }}</div>
+                </div>
+            </div>
+            {% else %}
+            <p style="color: #6b7280;">Paint sign-off record not created yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- TAB 6: REJECTIONS -->
+<div id="tab-rejections" class="tab-pane" style="display: none;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Rejection Records</h3>
+            <a href="/admin-panel/quality/rejections/create/" class="btn btn-danger btn-sm">+ Log Rejection</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Stage</th>
+                        <th>Reason</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Corrective Action</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rej in rejections %}
+                    <tr>
+                        <td><span class="badge badge-secondary">{{ rej.stage }}</span></td>
+                        <td style="color: #dc2626; font-weight: 600;">{{ rej.reason.name }}</td>
+                        <td>{{ rej.description }}</td>
+                        <td><span class="badge badge-danger">{{ rej.get_status_display }}</span></td>
+                        <td>{{ rej.corrective_action|default:"Pending investigation" }}</td>
+                        <td>{{ rej.date|date:"Y-m-d" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" style="text-align: center; color: #059669; padding: 20px;">No rejections logged for this product.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 7: AUDIT TRAIL -->
+<div id="tab-activity" class="tab-pane" style="display: none;">
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Audit Trail</h3></div>
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in audit_trail %}
+                    <tr>
+                        <td>{{ a.timestamp|date:"Y-m-d H:i:s" }}</td>
+                        <td>{{ a.user.username|default:"System" }}</td>
+                        <td><span class="badge badge-secondary">{{ a.action }}</span></td>
+                        <td>{{ a.new_value|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" style="text-align: center; color: #9ca3af; padding: 20px;">No audit trail events recorded yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function switchTab(tabId, el) {
+        document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+        document.querySelectorAll('.nav-tab-item').forEach(i => i.classList.remove('active'));
+        document.getElementById(tabId).style.display = 'block';
+        el.classList.add('active');
+    }
+</script>
+{% endblock %}

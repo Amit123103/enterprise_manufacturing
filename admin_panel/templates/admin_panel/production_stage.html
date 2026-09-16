@@ -1,0 +1,67 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}{{ stage_name }} | Manufacturing Management{% endblock %}
+{% block breadcrumb_active %}{{ stage_name }}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 class="page-title">{{ stage_name }} Stage</h1>
+        <p class="page-subtitle">Products currently in the {{ stage_name }} stage.</p>
+    </div>
+    <span class="badge badge-{{ stage_name|lower }}" style="font-size: 12px; padding: 4px 10px;">
+        {{ products.count }} Products
+    </span>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Products in {{ stage_name }}</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name / Part No</th>
+                    <th>Customer</th>
+                    <th>Operator</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td>
+                        <a href="/admin-panel/products/{{ p.product_id }}/" style="font-weight: 600; color: #2563eb;">
+                            {{ p.product_id }}
+                        </a>
+                    </td>
+                    <td>
+                        <div style="font-weight: 500;">{{ p.product_name }}</div>
+                        <div style="font-size: 11px; color: #6b7280;">PN: {{ p.part_number }}</div>
+                    </td>
+                    <td>{{ p.customer }}</td>
+                    <td>{{ p.assigned_user.username|default:"Unassigned" }}</td>
+                    <td>
+                        <span class="badge {% if p.status == 'APPROVED' %}badge-success{% elif p.status == 'REJECTED' %}badge-danger{% elif p.status == 'HOLD' %}badge-warning{% else %}badge-info{% endif %}">
+                            {{ p.get_status_display }}
+                        </span>
+                    </td>
+                    <td style="color: #6b7280;">{{ p.production_date }}</td>
+                    <td>
+                        <a href="/admin-panel/products/{{ p.product_id }}/" class="btn btn-secondary btn-sm">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #9ca3af; padding: 24px;">No products currently in {{ stage_name }} stage.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

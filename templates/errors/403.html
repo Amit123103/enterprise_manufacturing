@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}403 Forbidden | Access Denied{% endblock %}
+
+{% block content %}
+<div style="max-width: 650px; margin: 40px auto; text-align: center; background: white; padding: 40px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+    <div style="width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+    </div>
+    <h2 style="font-size: 22px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">403 - Access Forbidden</h2>
+    <p style="color: #64748b; font-size: 14px; margin-bottom: 24px; line-height: 1.6;">
+        {{ message|default:"You do not have sufficient administrative authority or module permissions to access this requested resource." }}
+    </p>
+
+    <div style="background: #f8fafc; border-radius: 8px; padding: 16px; border: 1px dashed #cbd5e1; margin-bottom: 24px; text-align: left; font-size: 13px;">
+        <div style="color: #475569; margin-bottom: 4px;"><strong>Authenticated User:</strong> {{ request.user.username }} ({{ request.user.get_role_display }})</div>
+        <div style="color: #475569; margin-bottom: 4px;"><strong>Requested Endpoint:</strong> <code>{{ request.path }}</code></div>
+        {% if module %}
+        <div style="color: #475569;"><strong>Required Authority:</strong> Module <code>{{ module }}</code> [{{ action|upper }}]</div>
+        {% endif %}
+    </div>
+
+    <div style="display: flex; gap: 12px; justify-content: center;">
+        <a href="/" class="btn btn-primary">Return to Dashboard</a>
+        <a href="/logout/" class="btn btn-secondary">Sign In With Another Account</a>
+    </div>
+</div>
+{% endblock %}
